@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0f380f" />
+<meta name="description" content="Finding Nuridana - a small journey through forgotten memories." />
+<title>Finding Nuridana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- ===================== GAME SHELL ===================== -->
+  <div id="device">
+   <div class="stage">
+    <div id="screen-frame">
+      <canvas id="game" width="160" height="144"></canvas>
+
+      <!-- Soft overlay scanline + vignette -->
+      <div id="screen-fx"></div>
+
+      <!-- ===================== MINI-GAME HUD ===================== -->
+      <div id="mg-hud" class="hidden">
+        <div class="mg-task" id="mg-task"></div>
+        <ul class="mg-list" id="mg-list"></ul>
+      </div>
+
+      <!-- ===================== TOAST ===================== -->
+      <div id="toast" class="hidden"></div>
+
+      <!-- ===================== TITLE SCREEN ===================== -->
+      <section id="title-screen" class="overlay">
+        <div class="title-inner">
+          <div class="title-petals" id="title-petals"></div>
+          <h1 class="title-main">Finding<br />Nuridana</h1>
+          <p class="title-sub">A small journey through<br />forgotten memories.</p>
+          <div class="title-buttons">
+            <button class="menu-btn" id="btn-start">Begin</button>
+            <button class="menu-btn ghost" id="btn-continue">Continue</button>
+            <button class="menu-btn ghost" id="btn-album-title">Memory Album</button>
+          </div>
+          <p class="title-credit">Made with love by Musaab.</p>
+        </div>
+      </section>
+
+      <!-- ===================== HUD ===================== -->
+      <div id="hud" class="hidden">
+        <div class="hud-left">
+          <span id="hud-chapter">The Memory Garden</span>
+        </div>
+        <div class="hud-right">
+          <span id="hud-memories" class="hud-pill">✦ 0</span>
+          <button id="btn-menu" class="hud-icon" aria-label="Menu">☰</button>
+        </div>
+      </div>
+
+      <!-- ===================== DIALOGUE BOX ===================== -->
+      <div id="dialogue" class="hidden">
+        <div class="dlg-name" id="dlg-name"></div>
+        <div class="dlg-text" id="dlg-text"></div>
+        <div class="dlg-choices" id="dlg-choices"></div>
+        <div class="dlg-next" id="dlg-next">▶</div>
+      </div>
+
+      <!-- ===================== MEMORY UNLOCK CARD ===================== -->
+      <div id="memory-card" class="overlay hidden">
+        <div class="memory-inner">
+          <div class="memory-icon" id="memory-icon">✦</div>
+          <div class="memory-title" id="memory-title">Memory Recovered</div>
+          <div class="memory-quote" id="memory-quote"></div>
+          <button class="menu-btn" id="memory-close">Keep going</button>
+        </div>
+      </div>
+
+      <!-- ===================== ALBUM ===================== -->
+      <section id="album" class="overlay hidden">
+        <div class="album-inner">
+          <header class="album-head">
+            <h2>Memory Album</h2>
+            <button id="album-close" class="hud-icon">✕</button>
+          </header>
+          <div class="album-grid" id="album-grid"></div>
+          <p class="album-foot" id="album-foot"></p>
+        </div>
+      </section>
+
+      <!-- ===================== PAUSE MENU ===================== -->
+      <section id="pause" class="overlay hidden">
+        <div class="pause-inner">
+          <h2>Paused</h2>
+          <button class="menu-btn" id="pause-resume">Resume</button>
+          <button class="menu-btn ghost" id="pause-album">Memory Album</button>
+          <button class="menu-btn ghost" id="pause-mute">Sound: On</button>
+          <button class="menu-btn ghost" id="pause-title">Return to Title</button>
+        </div>
+      </section>
+
+      <!-- ===================== FADE LAYER ===================== -->
+      <div id="fade"></div>
+    </div>
+   </div>
+
+    <!-- ===================== TOUCH CONTROLS ===================== -->
+    <div id="controls" class="hidden">
+      <div id="joystick" class="joy">
+        <div id="joy-base" class="joy-base">
+          <div id="joy-knob" class="joy-knob"></div>
+        </div>
+      </div>
+      <div class="action-cluster">
+        <button id="btn-b" class="act-btn b">B</button>
+        <button id="btn-a" class="act-btn a">A</button>
+        <button id="btn-interact" class="act-btn interact">●</button>
+      </div>
+    </div>
+  </div>
+
+  <p id="rotate-hint">↻ For the best journey, hold your phone upright.</p>
+
+  <!-- ===================== SCRIPTS ===================== -->
+  <script src="js/data.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/dialogue.js"></script>
+  <script src="js/scenes.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
