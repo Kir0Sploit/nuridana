@@ -201,7 +201,7 @@ window.CHECKPOINTS = [
     ],
     mode: 'runner',
     runner: {
-      need: 6,
+      need: 5,
       fragments: [
         'He counted the stops so he would not miss it.',
         'He practiced what to say, then forgot most of it.',

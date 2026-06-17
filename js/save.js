@@ -11,6 +11,7 @@ window.SaveManager = class SaveManager {
   defaults() {
     return {
       progress: 0,            // index of next checkpoint to play (0..8)
+      current: 0,             // checkpoint index last entered (for auto-resume)
       completed: [],          // ids of completed checkpoints
       memories: [],           // memory ids unlocked (checkpoint 'cp1'.. + secrets)
       secrets: [],            // secret ids found

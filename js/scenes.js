@@ -166,7 +166,7 @@ window.OverworldScene = class OverworldScene {
     if (p.moving) {
       let nx = mv.x, ny = mv.y;
       if (mag > 1) { nx /= mag; ny /= mag; }
-      const sp = 1.15;
+      const sp = 1.3;
       this._tryMove(p, nx * sp, ny * sp);
       if (Math.abs(nx) > Math.abs(ny)) { p.dir = 'side'; p.flip = nx < 0; }
       else p.dir = ny < 0 ? 'up' : 'down';
@@ -188,14 +188,14 @@ window.OverworldScene = class OverworldScene {
     // interact: nodes / gardener
     if (g.input.pressed('interact')) {
       // gardener
-      if (dist(p.x, p.y, this.npc.x + 8, this.npc.y + 8) < 22) {
+      if (dist(p.x, p.y, this.npc.x + 8, this.npc.y + 8) < 26) {
         const hint = window.GARDENER_HINTS[Math.min(g.save.data.progress, window.GARDENER_HINTS.length - 1)];
         g.dlg.show([{ name: 'Old Gardener', text: hint }]);
         return;
       }
       // nodes
       for (const n of this.nodes) {
-        if (dist(p.x, p.y, n.x + 8, n.y + 8) < 20) {
+        if (dist(p.x, p.y, n.x + 8, n.y + 8) < 24) {
           const st = this.nodeState(n.id);
           if (st === 'active') { g.startCheckpoint(n.id - 1); return; }
           if (st === 'done')   { g.dlg.show([{ name: 'Nuridana', text: 'I remember this one already. It still makes me smile.' }]); return; }
@@ -359,7 +359,7 @@ window.MiniGameScene = class MiniGameScene {
     p.moving = mag > 0.1;
     if (p.moving) {
       let nx = mv.x, ny = mv.y; if (mag > 1) { nx /= mag; ny /= mag; }
-      p.x += nx * 1.2; p.y += ny * 1.2;
+      p.x += nx * 1.4; p.y += ny * 1.4;
       p.x = Math.max(10, Math.min(this.worldW - 10, p.x));
       p.y = Math.max(24, Math.min(this.worldH - 12, p.y));
       if (Math.abs(nx) > Math.abs(ny)) { p.dir = 'side'; p.flip = nx < 0; } else p.dir = ny < 0 ? 'up' : 'down';
@@ -376,8 +376,8 @@ window.MiniGameScene = class MiniGameScene {
     for (const it of this.items) {
       if (it.taken) continue;
       const d = dist(p.x, p.y, it.x, it.y);
-      if (this.interactCollect) { if (d < 18 && g.input.pressed('interact')) { grab(it); break; } }
-      else if (d < 12) { grab(it); break; }
+      if (this.interactCollect) { if (d < 24 && g.input.pressed('interact')) { grab(it); break; } }
+      else if (d < 15) { grab(it); break; }
     }
   }
 
@@ -435,10 +435,10 @@ window.MiniGameScene = class MiniGameScene {
     for (let y = 1; y < rows - 1; y++) for (let x = 1; x < cols - 1; x++)
       if (grid[y][x] === 0 && !(x < 3 && y < 3) && !(x === this.exit.tx && y === this.exit.ty)) floors.push([x, y]);
     this.shadows = [];
-    const count = Math.min(4, cp.maze.thoughts.length);
+    const count = Math.min(2, cp.maze.thoughts.length);
     for (let i = 0; i < count; i++) {
       const c = floors[(rng() * floors.length) | 0] || [cols - 3, rows - 2];
-      this.shadows.push({ x: c[0] * 16 + 8, y: c[1] * 16 + 8, tx: c[0], ty: c[1], txTarget: c[0], tyTarget: c[1], spd: 0.5 + rng() * 0.3 });
+      this.shadows.push({ x: c[0] * 16 + 8, y: c[1] * 16 + 8, tx: c[0], ty: c[1], txTarget: c[0], tyTarget: c[1], spd: 0.22 + rng() * 0.12 });
     }
     this.thoughts = cp.maze.thoughts.slice();
     this.thoughtIdx = 0;
@@ -460,7 +460,7 @@ window.MiniGameScene = class MiniGameScene {
     p.moving = mag > 0.1;
     if (p.moving) {
       let nx = mv.x, ny = mv.y; if (mag > 1) { nx /= mag; ny /= mag; }
-      const sp = 1.1, hw = 4, hh = 4;
+      const sp = 1.45, hw = 3, hh = 3;
       let tx = p.x + nx * sp;
       if (!this._mazeBoxBlocked(tx, p.y, hw, hh)) p.x = tx;
       let ty = p.y + ny * sp;
@@ -481,13 +481,14 @@ window.MiniGameScene = class MiniGameScene {
       } else {
         s.x += Math.sign(dx) * s.spd; s.y += Math.sign(dy) * s.spd;
       }
-      if (this.hitCooldown === 0 && dist(p.x, p.y, s.x, s.y) < 11) {
-        this.hitCooldown = 90;
+      if (this.hitCooldown === 0 && dist(p.x, p.y, s.x, s.y) < 9) {
+        this.hitCooldown = 130;
         g.audio.sfx('hurt');
         const th = this.thoughts[this.thoughtIdx % this.thoughts.length]; this.thoughtIdx++;
         g.dlg.show([{ name: 'A thought', text: th }, { name: 'Nuridana', text: 'It\'s only a thought. I can keep walking.' }]);
-        // gently send back toward start
+        // gently return to the safe starting point (a checkpoint within the maze)
         p.x = this.start.tx * 16 + 8; p.y = this.start.ty * 16 + 8;
+        g.showToast('Back to safe ground ✦');
         return;
       }
     }
@@ -542,22 +543,22 @@ window.MiniGameScene = class MiniGameScene {
   _updateRunner() {
     const g = this.g; const r = g.r;
     if (g.dlg.isActive()) return;
-    this.scrollX += 1.4;
+    this.scrollX += 1.2;
     const p = this.player;
     const mv = g.input.movement();
-    p.y += mv.y * 1.6;
+    p.y += mv.y * 2.3;
     p.y = Math.max(this.winTop + 4, Math.min(this.winBot - 4, p.y));
     p.moving = Math.abs(mv.y) > 0.1;
     // spawn fragments
     this.spawnTimer--;
     if (this.spawnTimer <= 0 && this.collected < this.need) {
-      this.spawnTimer = 40 + (Math.random() * 30 | 0);
+      this.spawnTimer = 45 + (Math.random() * 30 | 0);
       this.frags.push({ x: r.VW + 10, y: this.winTop + 6 + Math.random() * (this.winBot - this.winTop - 12), taken: false });
     }
     for (let i = this.frags.length - 1; i >= 0; i--) {
       const f = this.frags[i];
-      f.x -= 1.6;
-      if (!f.taken && dist(f.x, f.y, p.x, p.y) < 12) {
+      f.x -= 1.05;
+      if (!f.taken && dist(f.x, f.y, p.x, p.y) < 17) {
         f.taken = true; this.collected++;
         g.audio.sfx('collect');
         g.particles.burst(f.x, f.y, '#ffe9b0', 10);
@@ -650,7 +651,7 @@ window.MiniGameScene = class MiniGameScene {
     p.moving = mag > 0.1;
     if (p.moving) {
       let nx = mv.x, ny = mv.y; if (mag > 1) { nx /= mag; ny /= mag; }
-      const sp = 1.15, hw = 4, hh = 4;
+      const sp = 1.4, hw = 4, hh = 4;
       let tx = p.x + nx * sp;
       if (!this._bridgeBox(tx, p.y, hw, hh)) p.x = tx;
       let ty = p.y + ny * sp;
@@ -724,7 +725,7 @@ window.MiniGameScene = class MiniGameScene {
       p.moving = mag > 0.1;
       if (p.moving) {
         let nx = mv.x, ny = mv.y; if (mag > 1) { nx /= mag; ny /= mag; }
-        p.x += nx * 1.0; p.y += ny * 1.0;
+        p.x += nx * 1.25; p.y += ny * 1.25;
         p.x = Math.max(12, Math.min(this.worldW - 12, p.x));
         p.y = Math.max(this.musaab.y + 16, Math.min(this.worldH - 12, p.y));
         if (Math.abs(nx) > Math.abs(ny)) { p.dir = 'side'; p.flip = nx < 0; } else p.dir = ny < 0 ? 'up' : 'down';

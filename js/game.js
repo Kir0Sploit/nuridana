@@ -114,9 +114,13 @@ window.Game = class Game {
   startCheckpoint(index) {
     const cp = window.CHECKPOINTS[index];
     if (!cp) return;
+    // auto-save: remember which checkpoint we're entering so a refresh/quit resumes here
+    this.save.data.current = index;
+    this.save.save();
     this.dlg.show(cp.intro, () => {
       this.fadeTo(() => {
         this.setScene(new MiniGameScene(this, cp));
+        this.showToast('Checkpoint saved ✦');
       });
     });
   }
@@ -126,6 +130,7 @@ window.Game = class Game {
       this.showMemoryCard(cp.memory, () => {
         this.save.completeCheckpoint(cp.id, 'cp' + cp.id);
         this.refreshHud();
+        this.showToast('Progress saved ✦');
         if (cp.id === 8) {
           this._finishGame();
         } else {

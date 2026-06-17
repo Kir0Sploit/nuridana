@@ -21,7 +21,7 @@
   --ui-font: "Quicksand", system-ui, sans-serif;
   --pixel-font: "Press Start 2P", monospace;
 
-  --controls-h: clamp(130px, 22vh, 190px);
+  --controls-h: clamp(150px, 24vh, 196px);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -441,15 +441,15 @@ body {
 }
 .action-cluster {
   position: relative;
-  width: 150px; height: 120px;
+  width: 168px; height: 132px;
 }
 .act-btn {
   position: absolute;
-  width: 56px; height: 56px;
+  width: 54px; height: 54px;
   border-radius: 50%;
   border: 2px solid rgba(255,255,255,0.2);
   font-family: var(--pixel-font);
-  font-size: 13px;
+  font-size: 12px;
   color: #2a1f33;
   cursor: pointer;
   box-shadow: 0 5px 0 rgba(0,0,0,0.35), 0 6px 12px rgba(0,0,0,0.3);
@@ -457,11 +457,12 @@ body {
   touch-action: none;
 }
 .act-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.35); }
-.act-btn.a { right: 6px;  bottom: 30px; background: linear-gradient(180deg,#ff9aa2,#e8556a); color:#fff; }
-.act-btn.b { right: 64px; bottom: 8px;  background: linear-gradient(180deg,#ffe08a,#e8a93a); }
+/* Neat, non-overlapping triangle: big Interact bottom-left, A right, B upper */
+.act-btn.a { right: 8px;  bottom: 30px; background: linear-gradient(180deg,#ff9aa2,#e8556a); color:#fff; }
+.act-btn.b { right: 80px; bottom: 72px; background: linear-gradient(180deg,#ffe08a,#e8a93a); }
 .act-btn.interact {
-  left: 6px; bottom: 30px;
-  width: 62px; height: 62px;
+  left: 4px; bottom: 4px;
+  width: 60px; height: 60px;
   background: linear-gradient(180deg,#a6e3a1,#5cae5c);
   color: #163a16; font-size: 18px;
 }
