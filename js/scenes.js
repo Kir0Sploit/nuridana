@@ -117,6 +117,34 @@ window.OverworldScene = class OverworldScene {
 
     // clear node tiles of obstacles
     for (const n of this.nodes) this.blocked.delete(this._key(n.tx, n.ty));
+
+    // houses, stalls and messenger NPCs
+    this._placePeople();
+  }
+
+  _clearTile(tx, ty) {
+    this.blocked.delete(this._key(tx, ty));
+    if (this.ground[ty] && this.ground[ty][tx] !== 'water') this.ground[ty][tx] = 'grass';
+    this.decos = this.decos.filter(d => !(d.tx === tx && d.ty === ty));
+    this.flowers = this.flowers.filter(f => !(f.tx === tx && f.ty === ty));
+  }
+
+  _placePeople() {
+    const T = this.TILE;
+    this.people = [];
+    this.structures = [];
+    for (const npc of window.NPCS) {
+      if (npc.struct) {
+        for (let yy = 0; yy < 2; yy++) for (let xx = 0; xx < 2; xx++) {
+          this._clearTile(npc.sx + xx, npc.sy + yy);
+          this.blocked.add(this._key(npc.sx + xx, npc.sy + yy));
+        }
+        this.structures.push({ type: npc.struct, tx: npc.sx, ty: npc.sy });
+      }
+      this._clearTile(npc.tx, npc.ty);
+      this.blocked.add(this._key(npc.tx, npc.ty));
+      this.people.push({ id: npc.id, name: npc.name, data: npc, palette: npc.palette, tx: npc.tx, ty: npc.ty, x: npc.tx * T, y: npc.ty * T });
+    }
   }
 
   _farFromNodes(tx, ty, d) {
@@ -166,7 +194,7 @@ window.OverworldScene = class OverworldScene {
     if (p.moving) {
       let nx = mv.x, ny = mv.y;
       if (mag > 1) { nx /= mag; ny /= mag; }
-      const sp = 1.3;
+      const sp = 1.0;
       this._tryMove(p, nx * sp, ny * sp);
       if (Math.abs(nx) > Math.abs(ny)) { p.dir = 'side'; p.flip = nx < 0; }
       else p.dir = ny < 0 ? 'up' : 'down';
@@ -185,8 +213,12 @@ window.OverworldScene = class OverworldScene {
       }
     }
 
-    // interact: nodes / gardener
+    // interact: NPCs / gardener / nodes
     if (g.input.pressed('interact')) {
+      // messenger NPCs
+      for (const pe of this.people) {
+        if (dist(p.x, p.y, pe.x + 8, pe.y + 8) < 24) { this._talkTo(pe); return; }
+      }
       // gardener
       if (dist(p.x, p.y, this.npc.x + 8, this.npc.y + 8) < 26) {
         const hint = window.GARDENER_HINTS[Math.min(g.save.data.progress, window.GARDENER_HINTS.length - 1)];
@@ -203,6 +235,18 @@ window.OverworldScene = class OverworldScene {
         }
       }
     }
+  }
+
+  _talkTo(person) {
+    const g = this.g, d = person.data;
+    g.dlg.show(d.relay, () => {
+      const choices = d.choices.map((c, i) => ({ label: c.label, value: i }));
+      g.dlg.showChoices(person.name, d.prompt, choices, (i) => {
+        g.dlg.show([{ name: person.name, text: d.choices[i].reply }], () => {
+          g.deliverLetter(person.id);
+        });
+      });
+    });
   }
 
   _tryMove(p, dx, dy) {
@@ -267,6 +311,20 @@ window.OverworldScene = class OverworldScene {
         else if (d.type === 'rock') r.rock(d.tx * T, d.ty * T);
       }});
     }
+    // houses / stalls
+    for (const st of this.structures) {
+      if (st.tx < x0 - 2 || st.tx > x1 || st.ty < y0 - 2 || st.ty > y1) continue;
+      drawables.push({ y: (st.ty + 2) * T, fn: () => {
+        if (st.type === 'house') r.house(st.tx * T, st.ty * T);
+        else r.stall(st.tx * T, st.ty * T);
+      }});
+    }
+    // messenger NPCs
+    for (const pe of this.people) {
+      if (pe.tx < x0 - 1 || pe.tx > x1 || pe.ty < y0 - 1 || pe.ty > y1) continue;
+      drawables.push({ y: pe.y + 16, fn: () =>
+        r.character(pe.x, pe.y, { dir: 'down', cloth: pe.palette.cloth, clothD: pe.palette.clothD, hair: pe.palette.hair, skin: pe.palette.skin }) });
+    }
     drawables.push({ y: this.npc.y + 16, fn: () =>
       r.character(this.npc.x, this.npc.y, { skin: COLORS.skin, hair: COLORS.gardBeard, cloth: COLORS.gardRobe, clothD: COLORS.gardRobeD, dir: 'down', beard: true }) });
     const p = this.player;
@@ -275,6 +333,12 @@ window.OverworldScene = class OverworldScene {
 
     drawables.sort((a, b) => a.y - b.y);
     drawables.forEach(d => d.fn());
+
+    // message markers above NPCs whose word is still unheard
+    for (const pe of this.people) {
+      if (pe.tx < x0 - 1 || pe.tx > x1 || pe.ty < y0 - 1 || pe.ty > y1) continue;
+      if (!g.save.data.letters.includes(pe.id)) r.messageMarker(pe.x + 4, pe.y - 10);
+    }
 
     // particles overlay
     g.particles.draw(r.ctx);
@@ -359,7 +423,7 @@ window.MiniGameScene = class MiniGameScene {
     p.moving = mag > 0.1;
     if (p.moving) {
       let nx = mv.x, ny = mv.y; if (mag > 1) { nx /= mag; ny /= mag; }
-      p.x += nx * 1.4; p.y += ny * 1.4;
+      p.x += nx * 1.0; p.y += ny * 1.0;
       p.x = Math.max(10, Math.min(this.worldW - 10, p.x));
       p.y = Math.max(24, Math.min(this.worldH - 12, p.y));
       if (Math.abs(nx) > Math.abs(ny)) { p.dir = 'side'; p.flip = nx < 0; } else p.dir = ny < 0 ? 'up' : 'down';
@@ -460,7 +524,7 @@ window.MiniGameScene = class MiniGameScene {
     p.moving = mag > 0.1;
     if (p.moving) {
       let nx = mv.x, ny = mv.y; if (mag > 1) { nx /= mag; ny /= mag; }
-      const sp = 1.45, hw = 3, hh = 3;
+      const sp = 1.15, hw = 3, hh = 3;
       let tx = p.x + nx * sp;
       if (!this._mazeBoxBlocked(tx, p.y, hw, hh)) p.x = tx;
       let ty = p.y + ny * sp;
@@ -546,7 +610,7 @@ window.MiniGameScene = class MiniGameScene {
     this.scrollX += 1.2;
     const p = this.player;
     const mv = g.input.movement();
-    p.y += mv.y * 2.3;
+    p.y += mv.y * 1.7;
     p.y = Math.max(this.winTop + 4, Math.min(this.winBot - 4, p.y));
     p.moving = Math.abs(mv.y) > 0.1;
     // spawn fragments
@@ -651,7 +715,7 @@ window.MiniGameScene = class MiniGameScene {
     p.moving = mag > 0.1;
     if (p.moving) {
       let nx = mv.x, ny = mv.y; if (mag > 1) { nx /= mag; ny /= mag; }
-      const sp = 1.4, hw = 4, hh = 4;
+      const sp = 1.05, hw = 4, hh = 4;
       let tx = p.x + nx * sp;
       if (!this._bridgeBox(tx, p.y, hw, hh)) p.x = tx;
       let ty = p.y + ny * sp;
@@ -725,7 +789,7 @@ window.MiniGameScene = class MiniGameScene {
       p.moving = mag > 0.1;
       if (p.moving) {
         let nx = mv.x, ny = mv.y; if (mag > 1) { nx /= mag; ny /= mag; }
-        p.x += nx * 1.25; p.y += ny * 1.25;
+        p.x += nx * 0.95; p.y += ny * 0.95;
         p.x = Math.max(12, Math.min(this.worldW - 12, p.x));
         p.y = Math.max(this.musaab.y + 16, Math.min(this.worldH - 12, p.y));
         if (Math.abs(nx) > Math.abs(ny)) { p.dir = 'side'; p.flip = nx < 0; } else p.dir = ny < 0 ? 'up' : 'down';

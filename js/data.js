@@ -369,3 +369,96 @@ window.GARDENER_HINTS = [
   'Some memories are hidden off the path. Wander a little.',
   'There is no failing here. Only remembering, slowly.'
 ];
+
+/* ---------- Overworld NPCs: each carries one of Musaab's words ---------- *
+ * He left a kind message and asked everyone in the garden to pass a piece
+ * of it to Nuridana. None of it begs; all of it is meant to soothe.        */
+window.NPCS = [
+  {
+    id: 'baker', name: 'The Baker', struct: 'house', tx: 13, ty: 13, sx: 11, sy: 12,
+    palette: { cloth: '#efe7d2', clothD: '#cfc4a6', hair: '#5a4030' },
+    relay: [
+      { name: 'The Baker', text: 'Oh — you must be Nuridana. A tired young man passed through. Bought bread he never even ate.' },
+      { name: 'The Baker', text: 'He asked me to pass you something. He said: "I wasn\'t always gentle with her. I\'m learning how to be — properly this time."' }
+    ],
+    prompt: 'He\'s hoping for a word back. What shall I carry to him?',
+    choices: [
+      { label: 'Tell him I\'m listening.', reply: '"She\'s listening." He\'ll hold onto that. Here, take some warm bread for the walk.' },
+      { label: 'Tell him change is shown, not said.', reply: 'Wise girl. I\'ll tell him plainly — and that you\'ll know it when you see it.' },
+      { label: 'I\'m not ready to answer yet.', reply: 'Perfectly alright. I\'ll say you\'re taking your time. Nothing in this garden is in a hurry.' }
+    ],
+    keep: 'I wasn\'t always gentle with her. I\'m learning how to be — properly this time.'
+  },
+  {
+    id: 'merchant', name: 'The Merchant', struct: 'stall', tx: 24, ty: 20, sx: 24, sy: 18,
+    palette: { cloth: '#7a9a5a', clothD: '#587846', hair: '#3a2a22' },
+    relay: [
+      { name: 'The Merchant', text: 'Browsing? Ah, Nuridana. A traveller paid me to keep a message safe until you came by.' },
+      { name: 'The Merchant', text: 'He said: "Tell her she doesn\'t owe anyone her smile. Not even me."' }
+    ],
+    prompt: 'And your reply? I deal only in honest goods.',
+    choices: [
+      { label: 'Tell him I appreciate that.', reply: 'Noted. He\'ll be relieved — he practiced that line a hundred times, I\'d wager.' },
+      { label: 'Tell him I want honesty, not pretty words.', reply: 'A fair trade. Honesty is my whole trade too. I\'ll carry it to him just as you said.' },
+      { label: 'Tell him to keep proving it.', reply: 'Ha — a hard bargain. Good. Let him earn it. I\'ll make sure he knows.' }
+    ],
+    keep: 'Tell her she doesn\'t owe anyone her smile. Not even me.'
+  },
+  {
+    id: 'child', name: 'A Small Child', struct: null, tx: 19, ty: 14, sx: 19, sy: 14,
+    palette: { cloth: '#f6c34a', clothD: '#d39a2a', hair: '#3a2a22' },
+    relay: [
+      { name: 'A Small Child', text: 'Hi! Are you Nuridana? A big brother with sad eyes told me a secret to tell you!' },
+      { name: 'A Small Child', text: 'He said... um... "You make ordinary days feel like they matter." Did I say it right?' }
+    ],
+    prompt: 'Teehee! What do I tell him back?',
+    choices: [
+      { label: 'Tell him that made me smile.', reply: 'Yay!! I\'ll run and tell him you smiled! He always does the happy face!' },
+      { label: 'Tell him kids are honest — so is he now.', reply: 'Hehe okay! I\'ll say you said he\'s honest now! Byeee!' }
+    ],
+    keep: 'You make ordinary days feel like they matter.'
+  },
+  {
+    id: 'florist', name: 'The Florist', struct: null, tx: 31, ty: 21, sx: 31, sy: 21,
+    palette: { cloth: '#ef8fb1', clothD: '#c86a90', hair: '#6b4a2b' },
+    relay: [
+      { name: 'The Florist', text: 'These? A young man picked them. Couldn\'t decide which were your favourite, so he chose every kind.' },
+      { name: 'The Florist', text: 'He tucked in a note: "You don\'t have to be okay all the time. I\'ll sit with you on the hard days too."' }
+    ],
+    prompt: 'Shall I send word back with the next bouquet?',
+    choices: [
+      { label: 'Tell him I\'ll let him sit with me.', reply: 'Lovely. I\'ll fold that reply between the petals. He\'ll understand.' },
+      { label: 'Tell him hard days don\'t scare me off either.', reply: 'Then you two might just make it. Consider it delivered.' },
+      { label: 'Just... tell him thank you.', reply: 'Sometimes that\'s the whole message. Said and done, dear.' }
+    ],
+    keep: 'You don\'t have to be okay all the time. I\'ll sit with you on the hard days too.'
+  },
+  {
+    id: 'traveler', name: 'The Traveller', struct: null, tx: 16, ty: 22, sx: 16, sy: 22,
+    palette: { cloth: '#8a6a9a', clothD: '#674a78', hair: '#241c28' },
+    relay: [
+      { name: 'The Traveller', text: 'Rest your feet a moment. I met your Musaab on the road — we walked a good while together.' },
+      { name: 'The Traveller', text: 'He wanted you to hear this: "I\'m proud of you. Even on the days you can\'t see it yourself."' }
+    ],
+    prompt: 'He hoped you\'d send something back along the road.',
+    choices: [
+      { label: 'Tell him I\'m proud of him for trying.', reply: 'He\'ll carry that a long way. A single kind line does wonders for a tired heart.' },
+      { label: 'Tell him I\'m still finding my way.', reply: 'Then he\'ll wait at your pace. He said as much to me himself.' },
+      { label: 'Tell him we\'ll talk at the hill.', reply: 'The hill it is. I\'ll point him there. Safe travels, Nuridana.' }
+    ],
+    keep: 'I\'m proud of you. Even on the days you can\'t see it yourself.'
+  }
+];
+
+/* The pieces, gathered into one whole. Shown after every messenger is heard. */
+window.MUSAAB_FULL = {
+  lines: [
+    { name: '', text: 'You stop walking. The messages settle, and somehow they fit together.' },
+    { name: 'Musaab (through everyone)', text: '"Take your time. I\'m not going anywhere."' },
+    { name: 'Musaab (through everyone)', text: '"You don\'t owe me a smile, or okay days, or a tidy heart."' },
+    { name: 'Musaab (through everyone)', text: '"I got things wrong, and I\'d rather grow than pretend I didn\'t."' },
+    { name: 'Musaab (through everyone)', text: '"And I\'ll keep choosing you — better, every single day."' },
+    { name: 'Nuridana', text: 'He didn\'t ask me to forgive him. He just... wanted me to know.' }
+  ],
+  keep: 'Take your time. I\'m not going anywhere. And I\'ll keep choosing you — better, every day.'
+};

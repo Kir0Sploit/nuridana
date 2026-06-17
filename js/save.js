@@ -15,6 +15,8 @@ window.SaveManager = class SaveManager {
       completed: [],          // ids of completed checkpoints
       memories: [],           // memory ids unlocked (checkpoint 'cp1'.. + secrets)
       secrets: [],            // secret ids found
+      letters: [],            // NPC ids whose message from Musaab has been heard
+      lettersComplete: false, // all NPC messages heard (combined note shown)
       ending: null,           // final choice value
       settings: { muted: false },
       version: 1

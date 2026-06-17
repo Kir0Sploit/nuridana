@@ -26,6 +26,8 @@ window.Game = class Game {
 
     this.audio.setMuted(!!this.save.data.settings.muted);
     this._lastTime = 0;
+    this.STEP = 1000 / 60;   // fixed simulation step (stable across refresh rates)
+    this._acc = 0;
     this._raf = this._loop.bind(this);
   }
 
@@ -43,12 +45,32 @@ window.Game = class Game {
     this.audio.startAmbient(prof);
   }
 
-  /* ---------- main loop ---------- */
+  /* ---------- main loop: fixed timestep so speed is stable on any display ---------- */
   _loop(ts) {
-    this.r.begin();
+    if (!this._lastTime) this._lastTime = ts;
+    let dt = ts - this._lastTime;
+    this._lastTime = ts;
+    if (dt > 250) dt = 250; // avoid a huge catch-up after a tab switch
+    this._acc += dt;
+
+    let steps = 0;
+    while (this._acc >= this.STEP && steps < 5) {
+      this._step();
+      this._acc -= this.STEP;
+      steps++;
+    }
+    // ensure at least one logic step even if the browser throttles timestamps
+    if (steps === 0) this._step();
+
+    this._draw();
+    this.input.endFrame();
+    requestAnimationFrame(this._raf);
+  }
+
+  // one fixed simulation tick
+  _step() {
     this.particles.update();
 
-    // dialogue input
     if (this.dlg.isActive()) {
       if (this.dlg.choiceMode) {
         if (this.input.menu('up')) this.dlg.moveChoice(-1);
@@ -60,15 +82,18 @@ window.Game = class Game {
     if (this.state === 'play') {
       const blocked = this.paused || this.albumOpen || this.memoryOpen;
       if (!blocked && this.scene) this.scene.update();
-      if (this.scene) this.scene.draw();
-      else { this.r.sky(this.ambience); this.particles.draw(this.r.ctx); }
+    }
+  }
+
+  // one render pass
+  _draw() {
+    this.r.begin();
+    if (this.state === 'play' && this.scene) {
+      this.scene.draw();
     } else {
       this.r.sky('sunset');
       this.particles.draw(this.r.ctx);
     }
-
-    this.input.endFrame();
-    requestAnimationFrame(this._raf);
   }
 
   setScene(scene) { this.scene = scene; if (scene.enter) scene.enter(); }
@@ -176,6 +201,27 @@ window.Game = class Game {
   }
   addMemory() { this.refreshHud(); }
 
+  /* ---------- messenger letters from Musaab ---------- */
+  deliverLetter(id) {
+    const s = this.save.data;
+    if (!s.letters.includes(id)) {
+      s.letters.push(id);
+      this.save.save();
+      this.audio.sfx('secret');
+      this.showToast('A message kept ✦');
+    }
+    if (s.letters.length >= window.NPCS.length && !s.lettersComplete) {
+      s.lettersComplete = true;
+      this.save.save();
+      this.dlg.show(window.MUSAAB_FULL.lines, () => {
+        this.showMemoryCard(
+          { icon: '💞', title: 'A Message, Pieced Together', quote: window.MUSAAB_FULL.keep },
+          () => {}
+        );
+      });
+    }
+  }
+
   miniHud(task, items) {
     const hud = document.getElementById('mg-hud');
     const t = document.getElementById('mg-task');
@@ -241,6 +287,12 @@ window.Game = class Game {
       if (got) found++;
       grid.appendChild(this._albumCard(got, s.icon, s.title, s.quote, 'Hidden'));
     });
+    // messenger letters from Musaab (bonus)
+    window.NPCS.forEach(npc => {
+      const got = this.save.data.letters.includes(npc.id);
+      grid.appendChild(this._albumCard(got, '💌', npc.name, npc.keep, 'Message'));
+    });
+    grid.appendChild(this._albumCard(this.save.data.lettersComplete, '💞', 'A Message, Pieced Together', window.MUSAAB_FULL.keep, 'Message'));
     const total = window.CHECKPOINTS.length + window.SECRETS.length;
     const foot = document.getElementById('album-foot');
     foot.textContent = (found >= total) ? window.ALBUM_COMPLETE_NOTE : ('Memories found: ' + found + ' / ' + total);

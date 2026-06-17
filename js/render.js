@@ -367,4 +367,61 @@ window.Renderer = class Renderer {
     this.ctx.fillStyle = `rgba(10,6,18,${alpha})`;
     this.ctx.fillRect(0, 0, this.VW, this.VH);
   }
+
+  /* ---------- cottage (2x2 tiles footprint, drawn 32 wide) ---------- */
+  house(wx, wy) {
+    const C = window.COLORS;
+    // body
+    this.r(wx + 2, wy + 12, 28, 20, '#caa37a');
+    this.r(wx + 2, wy + 12, 28, 3, '#b08a5a');
+    // roof
+    this.ctx.fillStyle = '#9a4a3a';
+    this.ctx.beginPath();
+    this.ctx.moveTo(wx - 1 - this.cam.x, wy + 13 - this.cam.y);
+    this.ctx.lineTo(wx + 16 - this.cam.x, wy - 2 - this.cam.y);
+    this.ctx.lineTo(wx + 33 - this.cam.x, wy + 13 - this.cam.y);
+    this.ctx.closePath(); this.ctx.fill();
+    this.r(wx + 13, wy - 4, 4, 8, '#7a5230'); // chimney
+    // door + window
+    this.r(wx + 12, wy + 20, 8, 12, '#7a5230');
+    this.r(wx + 14, wy + 25, 2, 2, '#ffd266');
+    this.r(wx + 5, wy + 17, 6, 6, '#bfe2f2');
+    this.r(wx + 21, wy + 17, 6, 6, '#bfe2f2');
+    // little smoke
+    const s = Math.sin(this.t * 0.06) * 1;
+    this.ctx.globalAlpha = 0.5;
+    this.r(wx + 14 + (s | 0), wy - 9, 3, 3, '#e8e0e8');
+    this.r(wx + 15 - (s | 0), wy - 13, 2, 2, '#e8e0e8');
+    this.ctx.globalAlpha = 1;
+  }
+
+  /* ---------- market stall (2x2 footprint) ---------- */
+  stall(wx, wy) {
+    const C = window.COLORS;
+    // counter
+    this.r(wx + 2, wy + 18, 28, 12, '#9b6a3a');
+    this.r(wx + 2, wy + 18, 28, 3, '#b89060');
+    // posts
+    this.r(wx + 3, wy + 4, 2, 16, '#7a5230');
+    this.r(wx + 27, wy + 4, 2, 16, '#7a5230');
+    // striped awning
+    for (let i = 0; i < 7; i++) this.r(wx + 1 + i * 4, wy + 2, 4, 6, i % 2 ? '#e8556a' : '#fdf6e3');
+    this.r(wx + 1, wy + 7, 30, 2, '#c84a5a');
+    // goods on counter
+    this.r(wx + 6, wy + 14, 4, 4, '#ef8f43');
+    this.r(wx + 12, wy + 14, 4, 4, '#9a6bd0');
+    this.r(wx + 18, wy + 14, 4, 4, '#6bab4d');
+    this.r(wx + 24, wy + 13, 3, 5, '#ffe08a');
+  }
+
+  /* ---------- a little message marker above an NPC ---------- */
+  messageMarker(wx, wy) {
+    const bob = Math.sin(this.t * 0.12 + wx) * 1.5;
+    const x = wx, y = wy + (bob | 0);
+    this.r(x, y, 9, 7, '#fff6e6');
+    this.r(x, y, 9, 1, '#e8a93a');
+    this.r(x + 1, y + 1, 7, 1, '#e8556a');
+    this.r(x + 1, y + 3, 7, 1, '#e8556a');
+    this.r(x + 3, y + 7, 3, 2, '#fff6e6'); // little tail
+  }
 };
